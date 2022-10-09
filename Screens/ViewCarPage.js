@@ -4,28 +4,25 @@ import { NativeBaseProvider, Button, Input, Icon, Ionicons, Image, Select } from
 import image from "../asessts/HomeImage/carImage2.jpg"
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
-export default function SaveCarPage({ route, navigation }) {
+export default function ViewCarPage({ route, navigation }) {
 
-    const userId = route.params.userId;
-
-    const [frontPhoto, setFrontPhoto] = useState(null);
-    const [backPhoto, setBackPhoto] = useState(null);
-    const [sidePhoto, setSidePhoto] = useState(null);
-    const [interiorPhoto, setInteriorPhoto] = useState(null);
-    const [carNumber, setCarNumber] = useState("");
-    const [brand, setBrand] = useState("");
-    const [model, setModel] = useState("");
-    const [yearOfManufacture, setYearOfManufacture] = useState("");
-    const [milage, setMilage] = useState("");
-    const [engineCapacity, setEngineCapacity] = useState("");
-    const [gearType, setGearType] = useState("");
-    const [fuelType, setFuelType] = useState("");
-    const [options, setOptions] = useState("");
-    const [ownerContactNumber, setOwnerContactNumber] = useState("");
-    const [location, setLocation] = useState("");
-    const [price, setPrice] = useState("");
-
-
+    const [userId, setUserId] = useState(route.params.item.user_id)
+    const [frontPhoto, setFrontPhoto] = useState(route.params.item.front_image);
+    const [backPhoto, setBackPhoto] = useState(route.params.item.back_image);
+    const [sidePhoto, setSidePhoto] = useState(route.params.item.side_image);
+    const [interiorPhoto, setInteriorPhoto] = useState(route.params.item.interior_image);
+    const [carNumber, setCarNumber] = useState(route.params.item.car_id);
+    const [brand, setBrand] = useState(route.params.item.brand);
+    const [model, setModel] = useState(route.params.item.model);
+    const [yearOfManufacture, setYearOfManufacture] = useState(route.params.item.year_of_manufactures);
+    const [milage, setMilage] = useState(route.params.item.milage);
+    const [engineCapacity, setEngineCapacity] = useState(route.params.item.engine);
+    const [gearType, setGearType] = useState(route.params.item.gear_type);
+    const [fuelType, setFuelType] = useState(route.params.item.fuel_type);
+    const [options, setOptions] = useState(route.params.item.options);
+    const [ownerContactNumber, setOwnerContactNumber] = useState(route.params.item.contact_number);
+    const [location, setLocation] = useState(route.params.item.location);
+    const [price, setPrice] = useState(route.params.item.price);
 
     handlerChoosefrontPhoto = () => {
         const options = {
@@ -68,9 +65,9 @@ export default function SaveCarPage({ route, navigation }) {
         });
     };
 
-    saveData = async () => {
+    updateData = async () => {
         await fetch('http://192.168.123.77:3000/cars', {
-            method: 'POST',
+            method: 'PUT',
             body: JSON.stringify({
 
                 frontImage: frontPhoto,
@@ -88,7 +85,7 @@ export default function SaveCarPage({ route, navigation }) {
                 option_: options,
                 engine_Capacity: engineCapacity,
                 gear_Type: gearType,
-                fual_type:fuelType,
+                fual_type: fuelType,
                 price_: price
 
             }),
@@ -98,25 +95,59 @@ export default function SaveCarPage({ route, navigation }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                
-                if (json.message=="successfully saved") {
-                    Alert.alert("Done","sucessFully saved")
-                }else{
-                    Alert.alert("Error","Faild to save the car")
+                if (json.message == "successfully updated") {
+                    Alert.alert("Done", "successfully updated")
+                } else {
+                    Alert.alert("Error", "Faild to save the car")
                 }
-                
+
             })
-            .catch((err) => { Alert.alert("Failt to save",json.message) })
+            .catch((err) => { Alert.alert("Failt to save", json.message) })
+    }
+
+    deleteData =  () => {
+
+        Alert.alert(
+            "warning",
+            "Are you sure to delete this recode!",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                },
+                {
+                    text: "OK", onPress: () => {
+                         fetch('http://192.168.123.77:3000/cars', {
+                            method: 'DELETE',
+                            body: JSON.stringify({
+                                car_ID: carNumber,
+                            }),
+                            headers: {
+                                'Content-type': 'application/json; charset=UTF-8',
+                            },
+                        })
+                            .then((response) => response.json())
+                            .then((json) => {
+                                if (json.message == "successfully deleted") {
+                                    Alert.alert("Done", "successfully deleted")
+                                } else {
+                                    Alert.alert("Error", "Faild to delete the car")
+                                }
+
+                            })
+                            .catch((err) => { Alert.alert("Failt to save", json.message) })
+                    }
+                }
+            ]
+        );
     }
 
     return (
         <NativeBaseProvider>
             <ImageBackground source={image} resizeMode='cover' style={styles.backgroundImage} >
                 <View style={styles.container}>
-                    <View style={[styles.hedingContainer, { flex: 1 }]}>
-                        <Text style={styles.heading}>Add a Car</Text>
-                    </View>
-                    <View style={[{ flex: 7 }]}>
+                    <View style={[{ flex: 1 }]}>
                         <SafeAreaView style={styles.container1}>
                             <ScrollView style={styles.scrollView}>
                                 <View style={{ flex: 4, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
@@ -182,7 +213,7 @@ export default function SaveCarPage({ route, navigation }) {
                                         <Text style={styles.textfieldTitle}>
                                             Car number:
                                         </Text>
-                                        <Input style={styles.textInputFeild} mb='1.5' variant="outline" placeholder="CAA-##"
+                                        <Input isDisabled="true" style={styles.textInputFeild} mb='1.5' variant="outline" placeholder="CAA-##"
                                             value={carNumber}
                                             onChangeText={(e) => { setCarNumber(e) }}
                                         />
@@ -289,8 +320,8 @@ export default function SaveCarPage({ route, navigation }) {
                                         <Text style={styles.textfieldTitle}>
                                             Price:
                                         </Text>
-                                        <Input style={styles.textInputFeild} mb='1.5' variant="outline" placeholder="1120 000"
-                                            value={price}
+                                        <Input style={styles.textInputFeild} mb='1.5' variant="outline" placeholder="075515654"
+                                            value={price.toString()}
                                             onChangeText={(e) => { setPrice(e) }}
                                         />
                                     </View>
@@ -301,9 +332,17 @@ export default function SaveCarPage({ route, navigation }) {
                                             style={{ color: 'black', marginTop: '2%', marginBottom: '3%' }}
                                             variant="subtle"
                                             colorScheme="secondary"
-                                            onPress={saveData}
+                                            onPress={updateData}
                                         >
-                                            Save
+                                            Update the car
+                                        </Button>
+                                        <Button w='100%'
+                                            style={{ color: 'black', borderColor: 'red', marginTop: '2%', marginBottom: '3%' }}
+                                            variant="outline"
+                                            colorScheme="danger"
+                                            onPress={deleteData}
+                                        >
+                                            Delete the car
                                         </Button>
                                     </View>
                                 </View>

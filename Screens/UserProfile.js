@@ -15,6 +15,14 @@ export default function UserProfile({ route, navigation }) {
         })
     }
 
+    handlerOnShowAllCars = () => {
+        navigation.navigate("ShowAll", {
+            userId: params.userId,
+            user_name: params.user_name,
+            password: params.password
+        })
+    }
+
     return (
         <NativeBaseProvider>
             <ImageBackground source={image} resizeMode='cover' style={styles.backgroundImage} >
@@ -32,7 +40,7 @@ export default function UserProfile({ route, navigation }) {
                             </Button>
                         </View>
                         <View style={[styles.buttonContainer, { flex: 1 }]}>
-                            <Button w='75%' style={{ color: 'black' }} size="lg" variant="subtle" colorScheme="secondary">
+                            <Button w='75%' style={{ color: 'black' }} size="lg" variant="subtle" colorScheme="secondary" onPress={handlerOnShowAllCars}>
                                 Show All Cars
                             </Button>
                         </View>
